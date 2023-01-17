@@ -6,10 +6,9 @@ const commentsContainer = document.querySelector('#comments-container');
 
 input.classList.add('input');
 
-input.addEventListener('keydowm', (e) => {
+input.addEventListener("keydown", (e) => {
     handleEnter(e, null);
 });
-
 
 commentsContainer.appendChild(inputContainer);
 inputContainer.appendChild(input);
@@ -27,13 +26,11 @@ function handleEnter(e, current) {
         } else {
             current.responses.unshift(newComment);
         }
+        e.target.value = '';
+        commentsContainer.innerHTML = '';
+        commentsContainer.appendChild(inputContainer);
+        renderComments(comments, commentsContainer);
     }
-
-    e.target.value = '';
-    commentsContainer.innerHTML = '';
-    commentsContainer.appendChild(inputContainer);
-
-    renderComments(comments, commentsContainer);
 }
 
 function renderComments(arrComments, parentElement) {
@@ -50,17 +47,41 @@ function renderComments(arrComments, parentElement) {
         const textContainer = document.createElement('div');
         textContainer.textContent = element.text;
 
-        const actionsContainer = document.createElement('div');        
+        const actionsContainer = document.createElement('div');
 
         replyButton.textContent = 'Reply';
         likeButton.textContent = `${element.likes > 0 ? `${element.likes} likes` : 'like'}`;
 
 
-        replyButton.addEventListener('click', (e) => { });
-        likeButton.addEventListener('click', (e) => { });
+        replyButton.addEventListener('click', (e) => {
+
+            const newInput = inputContainer.cloneNode(true);
+            newInput.value = '';
+            newInput.focus();
+            newInput.addEventListener("keydown", (e) => {
+                handleEnter(e, element);
+            });
+
+            commentContainer.insertBefore(newInput, responsesContainer);
+
+        });
+
+        likeButton.addEventListener('click', (e) => {
+            element.likes++;
+            likeButton.textContent = `${element.likes > 0 ? `${element.likes} likes` : 'like'}`;
+        });
 
         commentContainer.appendChild(textContainer);
-        commentContainer.appendChild()
+        commentContainer.appendChild(actionsContainer);
+        actionsContainer.appendChild(replyButton)
+        actionsContainer.appendChild(likeButton);
 
+        commentContainer.appendChild(responsesContainer);
+
+        if (element.responses.length > 0) {
+            renderComments(element.responses, responsesContainer);
+        }
+
+        parentElement.appendChild(commentContainer);
     });
 }
